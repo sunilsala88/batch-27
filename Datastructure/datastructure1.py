@@ -60,9 +60,24 @@ stocks=['TSLA',"GOOG","AMZN",88]
 
 # stocks.clear()
 # stocks.extend(list1)
-r=stocks.pop(-1)
-print(r)
+
+# r=stocks.pop(-1)
+# print(r)
+
+del stocks[-1]
+
 print(stocks)
 # stocks.remove('GOOG')
 stocks.reverse()
 print(stocks)
+
+
+
+#tuple
+#round bracket
+#immutable
+
+a=(1,2,3,1)
+c=a.index(3)
+print(c)
+
