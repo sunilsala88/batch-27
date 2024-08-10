@@ -45,3 +45,19 @@ print(stock_prices)
 # stock_prices.pop('tsla')
 del stock_prices['tsla']
 print(stock_prices)
+
+
+a=[11,22,33]
+stock_prices
+
+
+
+
+s1={1,2,3,1,2,2,2,2}
+s1.remove(2)
+s1.add(6)
+a=s1.pop()
+print(a)
+print(s1)
+
+print(list(s1))
