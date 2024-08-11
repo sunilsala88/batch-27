@@ -103,14 +103,42 @@ n=    {
 
 
 
-# print(stocks)
-# print(type(stocks))
-# print(len(stocks))
+
 
 # print(stocks[1].get('current_price'))
 
 # stocks.append(n)
 # print(stocks)
 
-stocks[0].get('historical_data').pop(1)
+# stocks[2].update({'current_price':310.0})
+# print(stocks)
+
+
+# stocks[0].get('historical_data').pop(1)
+# print(stocks)
+
+# print(stocks[1].get('historical_data')[0].get('prices').get('close'))
+
+# stocks[0].get('historical_data')[0].get('prices').update({'open':99})
+# print(stocks)
+
+d={
+                "date": "2024-01-11",
+                "prices": {
+                    "open": 298.0,
+                    "close": 299.0,
+                    "high": 278.0,
+                    "low": 260.0
+                },
+                "volume": 21900
+}
+
+stocks[2].get('historical_data').append(d)
+# print(stocks)
+
+stocks[1].get('locations').remove('Singapore')
 print(stocks)
+
+
+#type casting
+#int() float(20) list()
