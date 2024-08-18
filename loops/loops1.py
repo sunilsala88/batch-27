@@ -40,3 +40,37 @@ for i in range(len(name)):
     print(name[i],prices[i])
 
 print(stock_prices)
+
+
+#first 10 fib numbers
+
+number1=0
+number2=1
+
+for i in range(8):
+    print(number1,number2)
+    number3=number1+number2
+    print(number3)
+    number1=number2
+    number2=number3
+
+#type 4
+#used on a dictionary
+stock_prices={'tsla':700,'ongc':900,'hdfc':970}
+
+print(list(stock_prices.keys()))
+
+print(list(stock_prices.values()))
+
+print(list(stock_prices.items()))
+s=[]
+p=[]
+
+for k,v in stock_prices.items():
+    print(k,v)
+    s.append(k)
+    p.append(v)
+print(s)
+print(p)
+
+
