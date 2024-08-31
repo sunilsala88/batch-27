@@ -42,7 +42,26 @@ place_order(order_type='limit',price=500,quant=50,side=-1,name='tsla')
 place_order('reliance',8,1)
 
 
-import yfinance as yf
 
-data=yf.download('TSLA',)
-print(data)
+def fun1(a,b,c,d):
+    return a+b+c+d
+
+a=fun1(*[3,4,5,4])
+print(a)
+
+
+# *args
+def fun2(*name):
+    print(name)
+
+fun2('tsla','goog',55,66,77,'ajsdfj')
+
+
+# *kwargs
+
+def fun3(**stock_prices):
+    print(stock_prices)
+
+fun3(tsla=300,goog=800)
+
+
