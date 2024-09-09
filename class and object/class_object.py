@@ -137,3 +137,44 @@ print(user1.get_portfolio())
 
 user1.sell('nifty')
 print(user1.get_portfolio())
+
+
+
+#about self
+#1 any instance attribute created inside a class is created using self
+#2 all methods will have self as first argument
+#3 all class and instance attribute can only be accessed using self
+
+
+
+
+class BankAccount:
+    def __init__(self,account_number : str,balance:int):
+        self.account_number=account_number
+        self.balance=balance
+
+    def deposit(self,amount):
+        if amount>0:
+            self.balance= self.balance+amount
+        else:
+            print('invalid amount')
+
+    def withdraw(self,amount):
+        if amount>0 and amount<=self.balance:
+            self.balance=self.balance-amount
+        else:
+            print('invalid amount')
+
+    def get_balance(self):
+        return self.balance
+    
+acc1=BankAccount('1234',500)
+b=acc1.get_balance()
+c=BankAccount.get_balance(acc1)
+print(b,c)
+
+
+acc2=BankAccount('1234',1000)
+b=acc2.get_balance()
+c=BankAccount.get_balance(acc2)
+print(b,c)

@@ -1,3 +1,0 @@
-tsla:700
-goog:900
-nifty:689
