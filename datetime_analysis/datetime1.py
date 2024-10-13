@@ -63,3 +63,6 @@ print(s1)
 
 a='55_30_11.2024.11.September'
 #epoch time for this string
+f2='%M_%S_%H.%Y.%d.%B'
+a1=dt.datetime.strptime(a,f2)
+print(a1.timestamp())
