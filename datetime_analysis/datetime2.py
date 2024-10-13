@@ -37,3 +37,4 @@ print(df[df['Date']>single_date])
 td1=pd.to_timedelta(1,unit='D')
 df['Date']=df['Date']+td1
 print(df)
+pirnt('df')
