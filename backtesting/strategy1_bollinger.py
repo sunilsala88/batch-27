@@ -2,7 +2,7 @@
 from backtesting import Backtest, Strategy
 
 import yfinance as yf
-
+import pandas as pd
 
 import pandas_ta as ta
 
@@ -15,8 +15,9 @@ def bbands(close,n):
     return b[f'BBL_{n}_2.0'],b[f'BBU_{n}_2.0']
 
 class bollingerband(Strategy):
-    n=20
+    n=100
     stop_number=0.05
+    take_profit=0.05
     def init(self):
         # self.sma20=self.I(sma,self.data.Close.s,20)
         # self.sma50=self.I(sma,self.data.Close.s,50)
@@ -31,19 +32,28 @@ class bollingerband(Strategy):
             if self.position.is_short:
                 self.position.close()
        
-            self.buy(sl=(1-self.stop_number)*p)
+            self.buy(sl=(1-self.stop_number)*p,tp=(1+self.take_profit)*p)
         elif self.upper[-1]<self.data.Close[-1]  :
             p=self.data.Close[-1]
             if self.position.is_long:
                 self.position.close()
     
-            # self.sell(sl=(1+self.stop_number)*p)
+            self.sell(sl=(1+self.stop_number)*p)
 
 
-data=yf.download("RELIANCE.NS",start="2017-01-01",end="2023-04-30")
+# data=yf.download("RELIANCE.NS",start="2017-01-01",end="2023-04-30")
+# print(data)
+# data=data['2021-08-24':]
+# print(bbands(data["Close"],20))
+
+data=pd.read_csv('/Users/algotrading2024/batch 27/backtesting/data.csv')
 print(data)
-data=data['2021-08-24':]
-print(bbands(data["Close"],20))
+data.drop(['symbol','trade_count','vwap','volume'],axis=1,inplace=True)
+data.rename(columns={'timestamp':'Date','open':'Open','high':'High','low':'Low','close':'Close'},inplace=True)
+data['Date']=pd.to_datetime(data['Date'])
+data.set_index('Date',inplace=True)
+print(data)
+data=data.iloc[:10000,]
 
 
 
