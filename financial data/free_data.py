@@ -21,7 +21,7 @@ print(data)
 # new_data=data_1m.resample('60min').agg(ohlcv_dict)
 # print(new_data.head(15))
 # new_data.dropna(inplace=True)
-# print(new_data)
+# print(new_data) 
 
 #matplotlib
 #mplfinance
