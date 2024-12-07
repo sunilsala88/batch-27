@@ -26,5 +26,5 @@ print(data)
 #matplotlib
 #mplfinance
 
-import mplfinance as mpf
-mpf.plot(data,type='candle',style='yahoo')
+# import mplfinance as mpf
+# mpf.plot(data,type='candle',style='yahoo')
