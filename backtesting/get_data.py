@@ -13,7 +13,7 @@ secret_key="rkWLI1F2poiTbuERdzozfOLgVV6mrFKTH27Ugvb1"
 # setup stock historical data client
 stock_historical_data_client = StockHistoricalDataClient(api_key, secret_key)
 
-symbol='GOOG'
+symbol='SPY'
 
 # get historical bars by symbol
 # ref. https://docs.alpaca.markets/reference/stockbars-1
@@ -22,15 +22,15 @@ now = datetime.now(ZoneInfo("America/New_York"))
 
 req = StockBarsRequest(
     symbol_or_symbols = symbol,
-    timeframe=TimeFrame(amount = 5, unit = TimeFrameUnit.Minute), # specify timeframe
-    start = now - timedelta(days = 360),                          # specify start datetime, default=the beginning of the current day.
+    timeframe=TimeFrame(amount = 1, unit = TimeFrameUnit.Hour), # specify timeframe
+    start = now - timedelta(days = 2000),                          # specify start datetime, default=the beginning of the current day.
     # end_date=None,                                        # specify end datetime, default=now
     # limit = 2,                                               # specify limit
 )
 data=stock_historical_data_client.get_stock_bars(req).df
 print(data)
 
-data.to_csv('data.csv')
+data.to_csv('SPY.csv')
 
 # now = datetime.now(ZoneInfo("America/New_York"))
 # req = StockBarsRequest(
