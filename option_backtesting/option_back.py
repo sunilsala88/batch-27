@@ -95,164 +95,169 @@ a=get_nearest_expiry(datetime(2023,1,28))
 print(a)
 
 
-# def get_from_database():
-#     con = sqlite3.connect('option_history.db')
-#     cursorObj = con.cursor()
-#     cursorObj.execute('SELECT name from sqlite_master where type= "table"')
-#     data= cursorObj.fetchall()
-#     option_price_df={}
-#     for i in data:
-#         k=i[0]
-#         option_price_df[k]=pd.read_sql_query(f'SELECT * FROM {k}',con)
-#     return option_price_df
+def get_from_database():
+    con = sqlite3.connect('/Users/algotrading2024/batch 27/.data/option_history.db')
+    cursorObj = con.cursor()
+    cursorObj.execute('SELECT name from sqlite_master where type= "table"')
+    data= cursorObj.fetchall()
+    option_price_df={}
+    # temp=0
+    for i in data:
+        # temp=temp+1
+        # if temp==5:
+        #     break
+        k=i[0]
+        option_price_df[k]=pd.read_sql_query(f'SELECT * FROM {k}',con)
+    return option_price_df
 
 
 
 
-# year=2023
-# month=1
-# money=2000
-# trades=open('trades.csv','w')
-# trades.write('time'+","+'option_contract_name' +","+'position'+','+'option_price'+','+'underlying_price'+','+'balance'+'\n')
+year=2023
+month=1
+money=2000
+trades=open('trades.csv','w')
+trades.write('time'+","+'option_contract_name' +","+'position'+','+'option_price'+','+'underlying_price'+','+'balance'+'\n')
 
 
-# # start1 = datetime(year, month, 1)
-# option_price_df1=get_from_database()
-# option_price_df={}
-# print(option_price_df1)
-# # #resample 1min to 5min and store in option_price_df
+# start1 = datetime(year, month, 1)
+option_price_df1=get_from_database()
+option_price_df={}
+print(option_price_df1)
+# #resample 1min to 5min and store in option_price_df
 
-# for i,j in option_price_df1.items():
-#     if j.empty == False:
-#         j=j[['datetime','open','high','low','close','volume']]
-#         j['datetime']=pd.to_datetime(j['datetime'])
-#         j.set_index('datetime',inplace=True)
-#         ohlcv_dict = {
-#             'open': 'first',
-#             'high': 'max',
-#             'low': 'min',
-#             'close': 'last',
-#             'volume': 'sum'
-#         }
-#         option_price_df[i]=j.resample('5min').agg(ohlcv_dict)
-#         #drop nan rows
-#         option_price_df[i].dropna(inplace=True)
-#         #remove date before 9:15 and after 15:30
-#         option_price_df[i]=option_price_df[i].between_time('09:15','15:30')
-#         option_price_df[i].reset_index(inplace=True)
+for i,j in option_price_df1.items():
+    if j.empty == False:
+        j=j[['datetime','open','high','low','close','volume']]
+        j['datetime']=pd.to_datetime(j['datetime'])
+        j.set_index('datetime',inplace=True)
+        ohlcv_dict = {
+            'open': 'first',
+            'high': 'max',
+            'low': 'min',
+            'close': 'last',
+            'volume': 'sum'
+        }
+        option_price_df[i]=j.resample('5min').agg(ohlcv_dict)
+        #drop nan rows
+        option_price_df[i].dropna(inplace=True)
+        #remove date before 9:15 and after 15:30
+        option_price_df[i]=option_price_df[i].between_time('09:15','15:30')
+        option_price_df[i].reset_index(inplace=True)
 
-# print(option_price_df)
-
-
-# for month in range(1,7):
-#     end=get_weekly_expiry(year,month)[-1]
-#     start=datetime(year,month,1)
-#     underlying_df_daily=option_price_df['daily'+end.strftime('%Y%m%d')]
-#     underlying_df_5min=option_price_df['min'+end.strftime('%Y%m%d')]
-
-#     for i in underlying_df_daily.index:
-#         open_price=(int(float(underlying_df_daily['open'][i]))//100)*100
-#         time=underlying_df_daily['datetime'][i]
-#         if time>datetime(2023,6,20):
-#             break
-#         start=datetime(time.year,time.month,time.day,9,15)
-#         end2=datetime(time.year,time.month,time.day,15,25)
-#         portfolio={}
-#         first_trade=False
-
-#         while start<=end2:
-#             try:
-#                 end=get_nearest_expiry(time).strftime('%Y%m%d')
-#                 atm='call'+ str(open_price)+ end
-#                 spot_price=underlying_df_5min[underlying_df_5min['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
-#                 atm_price=option_price_df[atm][option_price_df[atm]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
+print(option_price_df)
 
 
+for month in range(1,7):
+    end=get_weekly_expiry(year,month)[-1]
+    start=datetime(year,month,1)
+    underlying_df_daily=option_price_df['daily'+end.strftime('%Y%m%d')]
+    underlying_df_5min=option_price_df['min'+end.strftime('%Y%m%d')]
 
-#                 #entry condition
-#                 if (not first_trade) and (start.time() == datetime(time.year,time.month,time.day,10,15).time()):
+    for i in underlying_df_daily.index:
+        open_price=(int(float(underlying_df_daily['open'][i]))//100)*100
+        time=underlying_df_daily['datetime'][i]
+        if time>datetime(2023,6,20):
+            break
+        start=datetime(time.year,time.month,time.day,9,15)
+        end2=datetime(time.year,time.month,time.day,15,25)
+        portfolio={}
+        first_trade=False
 
-#                     logging.info('taking positions at 10:15')
-#                     first_trade=True
-#                     high=underlying_df_5min[(underlying_df_5min.datetime>datetime(time.year,time.month,time.day,9,0).strftime('%Y-%m-%d %H:%M:%S')) & (underlying_df_5min.datetime<datetime(time.year,time.month,time.day,10,15).strftime('%Y-%m-%d %H:%M:%S'))].high.astype(float).max()
-#                     low=underlying_df_5min[(underlying_df_5min.datetime>datetime(time.year,time.month,time.day,9,0).strftime('%Y-%m-%d %H:%M:%S')) & (underlying_df_5min.datetime<datetime(time.year,time.month,time.day,10,15).strftime('%Y-%m-%d %H:%M:%S'))].low.astype(float).min()
-#                     logging.info('selling atm call and put option ')
-#                     atm_call_price=option_price_df[atm][option_price_df[atm]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
-#                     atm_put_price=option_price_df[atm.replace('call','put')][option_price_df[atm.replace('call','put')]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
-#                     money=money+int(float(atm_call_price))+int(float(atm_put_price))
-#                     portfolio['atm_call']=atm_call_price
-#                     portfolio['atm_put']=atm_put_price
-#                     logging.info(str(atm_call_price)+','+str(atm_put_price)+','+str(portfolio)+','+str(money))
-#                     trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'call'+end +","+'sell'+','+str(atm_call_price)+','+str(spot_price)+','+str(money-int(float(atm_put_price)))+'\n')
-#                     trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'put'+end +","+'sell'+','+str(atm_put_price)+','+str(spot_price)+','+str(money)+'\n')
-
-#                 #exit condition
-#                 elif start==datetime(time.year,time.month,time.day,15,25):
-#                     logging.info('closing positions at 15:25')
-#                     if 'atm_call' in list(portfolio.keys()):
-#                         logging.info('buying atm call option ')
-#                         atm_call_price=option_price_df[atm][option_price_df[atm]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
-#                         money=money-int(float(atm_call_price))
-#                         del portfolio['atm_call']
-#                         logging.info(str(atm_call_price)+','+str(portfolio)+','+str(money))
-#                         trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'call'+end +","+'buy'+','+str(atm_call_price)+','+str(spot_price)+','+str(money)+'\n')
-#                     if 'atm_put' in list(portfolio.keys()):
-#                         logging.info('buying atm put option ')
-#                         atm_put_price=option_price_df[atm.replace('call','put')][option_price_df[atm.replace('call','put')]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
-#                         money=money-int(float(atm_put_price))
-#                         del portfolio['atm_put']
-#                         logging.info(str(atm_put_price)+','+str(portfolio)+','+str(money))
-#                         trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'put'+end +","+'buy'+','+str(atm_put_price)+','+str(spot_price)+','+str(money)+'\n')
-
-#                 #strategy condition between entry and exit
-#                 elif first_trade:
-#                     if 'atm_call' in list(portfolio.keys()):
-#                         print(spot_price,high,type(spot_price),type(high))
-#                         if int(float(spot_price))>int(high):
-#                             logging.info('buying atm call option ')
-
-#                             atm_call_price=option_price_df[atm][option_price_df[atm]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
-#                             money=money-int(float(atm_call_price))
-#                             # logging.info(atm_call_price)
-#                             del portfolio['atm_call']
-#                             logging.info(str(atm_call_price)+','+str(portfolio)+','+str(money))
-#                             trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'call'+end +","+'buy'+','+str(atm_call_price)+','+str(spot_price)+','+str(money)+'\n')
-
-#                     else:
-#                         if int(float(spot_price))<int((high)):
-#                             logging.info('selling atm call option ')
-#                             atm_call_price=option_price_df[atm][option_price_df[atm]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
-#                             money=money+int(float(atm_call_price))
-#                             portfolio['atm_call']=atm_call_price
-#                             logging.info(str(atm_call_price)+','+str(portfolio)+','+str(money))
-#                             trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'call'+end +","+'sell'+','+str(atm_call_price)+','+str(spot_price)+','+str(money)+'\n')
-
-#                     if 'atm_put' in list(portfolio.keys()): 
-#                         if int(float(spot_price))<int((low)):
-#                             logging.info('buying atm put option ')
-#                             atm_put_price=option_price_df[atm.replace('call','put')][option_price_df[atm.replace('call','put')]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
-#                             money=money-int(float(atm_put_price))
-#                             del portfolio['atm_put']
-#                             logging.info(str(atm_put_price)+','+str(portfolio)+','+str(money))
-#                             trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'put'+end +","+'buy'+','+str(atm_put_price)+','+str(spot_price)+','+str(money)+'\n')
-
-#                     else:
-#                         if int(float(spot_price))>int((low)):
-#                             logging.info('selling atm put option ')
-#                             atm_put_price=option_price_df[atm.replace('call','put')][option_price_df[atm.replace('call','put')]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
-#                             money=money+int(float(atm_put_price))
-#                             portfolio['atm_put']=atm_put_price
-#                             logging.info(str(atm_put_price)+','+str(portfolio)+','+str(money))
-#                             trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'put'+end +","+'sell'+','+str(atm_put_price)+','+str(spot_price)+','+str(money)+'\n')
+        while start<=end2:
+            try:
+                end=get_nearest_expiry(time).strftime('%Y%m%d')
+                atm='call'+ str(open_price)+ end
+                spot_price=underlying_df_5min[underlying_df_5min['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
+                atm_price=option_price_df[atm][option_price_df[atm]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
 
 
 
-#                 start=start+timedelta(minutes=5)
+                #entry condition
+                if (not first_trade) and (start.time() == datetime(time.year,time.month,time.day,10,15).time()):
+
+                    logging.info('taking positions at 10:15')
+                    first_trade=True
+                    high=underlying_df_5min[(underlying_df_5min.datetime>datetime(time.year,time.month,time.day,9,0).strftime('%Y-%m-%d %H:%M:%S')) & (underlying_df_5min.datetime<datetime(time.year,time.month,time.day,10,15).strftime('%Y-%m-%d %H:%M:%S'))].high.astype(float).max()
+                    low=underlying_df_5min[(underlying_df_5min.datetime>datetime(time.year,time.month,time.day,9,0).strftime('%Y-%m-%d %H:%M:%S')) & (underlying_df_5min.datetime<datetime(time.year,time.month,time.day,10,15).strftime('%Y-%m-%d %H:%M:%S'))].low.astype(float).min()
+                    logging.info('selling atm call and put option ')
+                    atm_call_price=option_price_df[atm][option_price_df[atm]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
+                    atm_put_price=option_price_df[atm.replace('call','put')][option_price_df[atm.replace('call','put')]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
+                    money=money+int(float(atm_call_price))+int(float(atm_put_price))
+                    portfolio['atm_call']=atm_call_price
+                    portfolio['atm_put']=atm_put_price
+                    logging.info(str(atm_call_price)+','+str(atm_put_price)+','+str(portfolio)+','+str(money))
+                    trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'call'+end +","+'sell'+','+str(atm_call_price)+','+str(spot_price)+','+str(money-int(float(atm_put_price)))+'\n')
+                    trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'put'+end +","+'sell'+','+str(atm_put_price)+','+str(spot_price)+','+str(money)+'\n')
+
+                #exit condition
+                elif start==datetime(time.year,time.month,time.day,15,25):
+                    logging.info('closing positions at 15:25')
+                    if 'atm_call' in list(portfolio.keys()):
+                        logging.info('buying atm call option ')
+                        atm_call_price=option_price_df[atm][option_price_df[atm]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
+                        money=money-int(float(atm_call_price))
+                        del portfolio['atm_call']
+                        logging.info(str(atm_call_price)+','+str(portfolio)+','+str(money))
+                        trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'call'+end +","+'buy'+','+str(atm_call_price)+','+str(spot_price)+','+str(money)+'\n')
+                    if 'atm_put' in list(portfolio.keys()):
+                        logging.info('buying atm put option ')
+                        atm_put_price=option_price_df[atm.replace('call','put')][option_price_df[atm.replace('call','put')]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
+                        money=money-int(float(atm_put_price))
+                        del portfolio['atm_put']
+                        logging.info(str(atm_put_price)+','+str(portfolio)+','+str(money))
+                        trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'put'+end +","+'buy'+','+str(atm_put_price)+','+str(spot_price)+','+str(money)+'\n')
+
+                #strategy condition between entry and exit
+                elif first_trade:
+                    
+                    if 'atm_call' in list(portfolio.keys()):
+                        print(spot_price,high,type(spot_price),type(high))
+                        if int(float(spot_price))>int(high):
+                            logging.info('buying atm call option ')
+
+                            atm_call_price=option_price_df[atm][option_price_df[atm]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
+                            money=money-int(float(atm_call_price))
+                            # logging.info(atm_call_price)
+                            del portfolio['atm_call']
+                            logging.info(str(atm_call_price)+','+str(portfolio)+','+str(money))
+                            trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'call'+end +","+'buy'+','+str(atm_call_price)+','+str(spot_price)+','+str(money)+'\n')
+
+                    else:
+                        if int(float(spot_price))<int((high)):
+                            logging.info('selling atm call option ')
+                            atm_call_price=option_price_df[atm][option_price_df[atm]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
+                            money=money+int(float(atm_call_price))
+                            portfolio['atm_call']=atm_call_price
+                            logging.info(str(atm_call_price)+','+str(portfolio)+','+str(money))
+                            trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'call'+end +","+'sell'+','+str(atm_call_price)+','+str(spot_price)+','+str(money)+'\n')
+
+                    if 'atm_put' in list(portfolio.keys()): 
+                        if int(float(spot_price))<int((low)):
+                            logging.info('buying atm put option ')
+                            atm_put_price=option_price_df[atm.replace('call','put')][option_price_df[atm.replace('call','put')]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
+                            money=money-int(float(atm_put_price))
+                            del portfolio['atm_put']
+                            logging.info(str(atm_put_price)+','+str(portfolio)+','+str(money))
+                            trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'put'+end +","+'buy'+','+str(atm_put_price)+','+str(spot_price)+','+str(money)+'\n')
+
+                    else:
+                        if int(float(spot_price))>int((low)):
+                            logging.info('selling atm put option ')
+                            atm_put_price=option_price_df[atm.replace('call','put')][option_price_df[atm.replace('call','put')]['datetime']==start.strftime('%Y-%m-%d %H:%M:%S')].open.values[0]
+                            money=money+int(float(atm_put_price))
+                            portfolio['atm_put']=atm_put_price
+                            logging.info(str(atm_put_price)+','+str(portfolio)+','+str(money))
+                            trades.write(start.strftime('%Y-%m-%d %H:%M:%S')+" , "+str(open_price)+'put'+end +","+'sell'+','+str(atm_put_price)+','+str(spot_price)+','+str(money)+'\n')
+
+
+
+                start=start+timedelta(minutes=5)
             
-#             except Exception as e:
-#                 logging.info('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'+str(atm)+','+str(start)+','+str(end))
-#                 start=start+timedelta(days=1)
-#                 continue
+            except Exception as e:
+                logging.info('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'+str(atm)+','+str(start)+','+str(end))
+                start=start+timedelta(days=1)
+                continue
 
 
 # print(money)
